@@ -350,17 +350,19 @@ do_AUTH_each(Socket, Username, Password, ["CRAM-MD5" | Tail]) ->
 do_AUTH_each(Socket, Username, Password, ["LOGIN" | Tail]) ->
 	socket:send(Socket, "AUTH LOGIN\r\n"),
 	case read_possible_multiline_reply(Socket) of
-		{ok, <<"334 VXNlcm5hbWU6\r\n">>} ->
+		%{ok, <<"334 VXNlcm5hbWU6\r\n">>} ->
+		{ok, <<"334 ", _Rest/binary>>} ->
 			%io:format("username prompt~n"),
 			U = base64:encode(Username),
 			socket:send(Socket, [U,"\r\n"]),
 			case read_possible_multiline_reply(Socket) of
-				{ok, <<"334 UGFzc3dvcmQ6\r\n">>} ->
+				%{ok, <<"334 UGFzc3dvcmQ6\r\n">>} ->
+				{ok, <<"334 ", _Rest1/binary>>} ->
 					%io:format("password prompt~n"),
 					P = base64:encode(Password),
 					socket:send(Socket, [P,"\r\n"]),
 					case read_possible_multiline_reply(Socket) of
-						{ok, <<"235 ", _Rest/binary>>} ->
+						{ok, <<"235 ", _Rest2/binary>>} ->
 							%io:format("authentication accepted~n"),
 							true;
 						{ok, _Msg} ->
